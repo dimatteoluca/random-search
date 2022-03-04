@@ -2,8 +2,19 @@ import random, webbrowser, time, io, keyboard, threading
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+import ctypes                   # needed to determine screen size
 
 #SETTINGS
+    #Window position
+user32 = ctypes.windll.user32
+screenWidth = user32.GetSystemMetrics(0)
+screenHeight = user32.GetSystemMetrics(1)
+if (screenWidth<2500 and screenHeight<1400):
+    positionX = 1400
+    positionY = 430
+elif (screenWidth<3800 and screenHeight<2100):
+    positionX = 1900
+    positionY = 600
     #Colors
 celeste = "#0ee0ed"
 azzurro = "#0ca3ea"
@@ -34,16 +45,18 @@ mobileSearches = 5
 root = Tk()                         # beginning of the interface
 
 root.title("RandomSearch")                  # window title
-root.iconbitmap("./rsi.ico")                 # window icon
+root.iconbitmap("./res/rsi.ico")                 # window icon
 root.attributes('-topmost', True)           # the window is always on top
 root.resizable(0, 0)                        # the window is not resizable
+if not (screenWidth<1920 and screenHeight<1080):
+    root.geometry("+"+str(positionX)+"+"+str(positionY))
 
 canvas = Canvas(root, width=430)                       # needed for the layout
 #canvas.pack()                               # canvas size depends on the size of the elements in it
 canvas.grid(rowspan=5, columnspan=1)        # grid layout (5x1)
 
 #(  1  )Logo
-logo = Image.open("rsl.png").resize([280,270])
+logo = Image.open("./res/rsl.png").resize([280,270])
 logo = ImageTk.PhotoImage(logo)             # converts the Pillow Image into a Tkinter Image
 logo_label = Label(image=logo)       
 logo_label.image = logo
@@ -96,10 +109,10 @@ def btnsReset3():
 def languageSelection():
 
     if (language=="English"):
-        file = "eng.txt"
+        file = "./res/eng.txt"
 
     elif (language=="Italiano"):
-        file = "ita.txt"
+        file = "./res/ita.txt"
 
     with io.open(file, mode="r", encoding="utf-8") as file:
         allText = file.read()
@@ -302,9 +315,11 @@ def settings():
     newWindow = Toplevel(root)
     newWindow.attributes('-topmost', True) 
     newWindow.resizable(0, 0)
-    newWindow.iconbitmap("./rsi.ico")
+    newWindow.iconbitmap("./res/rsi.ico")
     newWindow.title("Settings")
     newWindow.protocol("WM_DELETE_WINDOW", disable_event)
+    if (screenWidth>=1920 and screenHeight>=1080):
+        newWindow.geometry("+"+str(positionX+50)+"+"+str(positionY+30))
 
     nw_canvas = Canvas(newWindow, height=350, width=280)
     nw_canvas.pack()
@@ -385,6 +400,9 @@ def settings():
     cancel_btn = Button(buttonsFrame, textvariable=cancel_text, height=1, width=10, command=lambda:myDestroy(newWindow), cursor="hand2")
     cancel_text.set("Cancel")
     cancel_btn.grid(row=0, column=1)
+
+def openLink(link):
+    webbrowser.open_new_tab(link)
 #////////////////////////////////////////////////////////////////////////////////////////////////// FUNCTIONS END
 
 
@@ -425,7 +443,8 @@ quit_text.set("Quit")
 quit_btn.grid(row=1, column=1)
 
 #(  5  )Info
-info_label = Label(root, text="Luca Di Matteo", fg="grey")
+info_label = Label(root, text="https://github.com/dimatteoluca", fg="grey", cursor="hand2")
+info_label.bind("<Button-1>", lambda e: openLink("https://github.com/dimatteoluca"))
 info_label.grid(row=5, column=0)
 
 root.mainloop()                         # end of the interface
