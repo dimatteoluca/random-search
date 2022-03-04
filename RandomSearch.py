@@ -180,7 +180,7 @@ def real_search():
 
     if pc:
 
-        webbrowser.get(browser).open_new_tab("pc-searches")
+        webbrowser.get(browser).open_new_tab("starting-pc-searches")
         tabs = 1
 
         for search in range(pcSearches):
@@ -190,11 +190,12 @@ def real_search():
             progress['value'] += valuePerSearch
 
         time.sleep(1.5)
-        keyboard.press_and_release('ctrl+w')
+        if not mobile:
+            keyboard.press_and_release('ctrl+w')
 
     if mobile:
 
-        webbrowser.get(browser).open_new_tab("mobile-searches")
+        webbrowser.get(browser).open_new_tab("starting-mobile-searches")
         time.sleep(1)
         keyboard.press_and_release('f12')
         if browser=="Firefox":                              # Firefox does one less search than other browsers and doesn't go in device mode by default
@@ -207,11 +208,14 @@ def real_search():
 
             if gottaStop(): return
             oneSearch(words)
-            if browser=='Firefox' and search==0: break      # read previous comment
+            if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
             progress['value'] += valuePerSearch
 
         time.sleep(1.5)
         keyboard.press_and_release('ctrl+w')
+        if pc:
+            time.sleep(1)
+            keyboard.press_and_release('ctrl+w')
 
     btnsReset1()
 
@@ -339,7 +343,8 @@ def settings():
     #browser
     browser_label = Label(newWindow, text="Browser:")
     browser_label.grid(row=1, column=0, sticky=E)
-    br_options = ["Chrome", "Edge", "Firefox"]
+    # br_options = ["Chrome", "Edge", "Firefox"]
+    br_options = ["Chrome", "Edge"]
     br_clicked = StringVar()
     if browser=="Chrome":
         br_clicked.set(br_options[0])
@@ -354,9 +359,9 @@ def settings():
     engine_label.grid(row=2, column=0, sticky=E)
     en_options = ["Bing", "Ecosia", "Google"]
     en_clicked = StringVar()
-    if engine=="Bing":
+    if engine==bing:
         en_clicked.set(en_options[0])
-    elif engine=="Ecosia":
+    elif engine==ecosia:
         en_clicked.set(en_options[1])
     else:
         en_clicked.set(en_options[2])
