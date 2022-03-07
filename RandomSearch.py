@@ -1,6 +1,7 @@
-import random, webbrowser, time, io, keyboard, threading, ctypes
+import webbrowser, time, keyboard, threading, ctypes, utils
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 
 
@@ -48,179 +49,20 @@ settingsHeight = 350
 # FUNCTIONS BEGINNING ///////////////////////////////////////////////////////////////////////////////////////////////
 def buttonsReset1():
 
-    start_btn["state"] = NORMAL
-    start_btn["bg"] = pink
-    start_btn["cursor"] = "hand2"
-
-    stop_btn["state"] = DISABLED
-    stop_btn["bg"] = grey
-    stop_btn["cursor"] = "arrow"
-
-    settings_btn["state"] = NORMAL
-    settings_btn["bg"] = azure
-    settings_btn["cursor"] = "hand2"
+    utils.enableButton(start_btn, pink)
+    utils.disableButton(stop_btn)
+    utils.enableButton(settings_btn, azure)
 
 def buttonsReset2():
 
-    start_btn["state"] = DISABLED
-    start_btn["bg"] = grey
-    start_btn["cursor"] = "arrow"
-
-    stop_btn["state"] = NORMAL
-    stop_btn["bg"] = purple
-    stop_btn["cursor"] = "hand2"
-
-    settings_btn["state"] = DISABLED
-    settings_btn["bg"] = grey
-    settings_btn["cursor"] = "arrow"
+    utils.disableButton(start_btn)
+    utils.enableButton(stop_btn, purple)
+    utils.disableButton(settings_btn)
 
 def buttonsReset3():
 
-    start_btn["state"] = NORMAL
-    start_btn["bg"] = pink
-    start_btn["cursor"] = "hand2"
-
-    settings_btn["state"] = NORMAL
-    settings_btn["bg"] = azure
-    settings_btn["cursor"] = "hand2"
-
-def selectedLanguage():
-
-    if (language=="English"):
-        file = "./res/eng.txt"
-
-    elif (language=="Italiano"):
-        file = "./res/ita.txt"
-
-    with io.open(file, mode="r", encoding="utf-8") as file:
-        allText = file.read()
-        wordsList = list(map(str, allText.split('\n')))
-
-    return wordsList
-
-def randomWordsSelection(words):
-
-    randomNumber = random.randrange(20)
-
-    # 1 word,  05% chance
-    if randomNumber==0:
-        url = "+".join([engine, random.choice(words)])
-        sleepTime = 1.2
-
-    # 2 words, 25% chance
-    if randomNumber in range(1,6):
-        url = "+".join([engine, random.choice(words), random.choice(words)])
-        sleepTime = 2.2
-
-    # 3 words, 40% chance
-    if randomNumber in range(6,14):
-        url = "+".join([engine, random.choice(words), random.choice(words), random.choice(words)])
-        sleepTime = 3
-
-    # 4 words, 30% chance
-    if randomNumber in range(14,20):
-        url = "+".join([engine, random.choice(words), random.choice(words), random.choice(words), random.choice(words)])
-        sleepTime = 3.7
-    
-    return (url, sleepTime)
-
-def gottaStop():
-
-    if halt:
-                thread = threading.Thread(target=close, daemon=True)
-                thread.start()
-                return True
-
-def singleSearch(words):
-
-    rws = randomWordsSelection(words)
-    url = rws[0]
-    sleepTime = rws[1]
-
-    time.sleep(1)
-    if gottaStop(): return
-    keyboard.press_and_release('ctrl+l')
-    time.sleep(sleepTime)
-    keyboard.write(url)
-    time.sleep(0.5)
-    keyboard.press_and_release('enter')
-
-def realSearch():
-
-    global tabs
-    global mobileSearches
-
-    wordsList = selectedLanguage()
-
-    progress['value'] = 0
-    if (pc & mobile):
-        valuePerSearch = 100/(pcSearches + mobileSearches)
-    elif not mobile:
-        valuePerSearch = 100/(pcSearches)
-    else:
-        valuePerSearch = 100/(mobileSearches)
-
-    if pc:
-
-        webbrowser.get(browser).open_new_tab("starting-pc-searches")
-        tabs = 1
-
-        for search in range(pcSearches):
-
-            if gottaStop(): return
-            singleSearch(wordsList)
-            progress['value'] += valuePerSearch
-
-        time.sleep(2)
-        if not mobile:
-            keyboard.press_and_release('ctrl+w')
-
-    if mobile:
-
-        webbrowser.get(browser).open_new_tab("starting-mobile-searches")
-        tabs += 1
-        time.sleep(1)
-        keyboard.press_and_release('f12')
-        #if browser=="Firefox":          # Firefox does one less search than other browsers and doesn't go in device mode by default
-        #    mobileSearches += 1
-        #    time.sleep(1)
-        #    keyboard.press_and_release('ctrl+shift+m')
-        #tabs = 1
-
-        for search in range(mobileSearches):
-
-            if gottaStop(): return
-            singleSearch(wordsList)
-            #if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
-            progress['value'] += valuePerSearch
-
-        time.sleep(2)
-        keyboard.press_and_release('ctrl+w')
-        if pc:
-            time.sleep(1)
-            keyboard.press_and_release('ctrl+w')
-
-    buttonsReset1()
-
-def search():
-
-    buttonsReset2()
-    
-    global halt
-    halt = False
-
-    thread = threading.Thread(target=realSearch, daemon=True)
-    thread.start()
-
-def stop():
-
-    #Buttons reset
-    stop_btn["state"] = DISABLED
-    stop_btn["bg"] = grey
-    stop_btn["cursor"] = "arrow"
-
-    global halt
-    halt = True
+    utils.enableButton(start_btn, pink)
+    utils.enableButton(settings_btn, azure)
 
 def close():
 
@@ -238,6 +80,98 @@ def close():
     progress['value'] = 100
     buttonsReset3()
 
+def singleSearch(wordsList):
+
+    rws = utils.randomWordsSelection(engine, wordsList)
+    url = rws[0]
+    sleepTime = rws[1]
+
+    time.sleep(1)
+    if utils.gottaStop(halt, close): return
+    keyboard.press_and_release('ctrl+l')
+    time.sleep(sleepTime)
+    keyboard.write(url)
+    time.sleep(0.5)
+    keyboard.press_and_release('enter')
+
+def realSearch():
+
+    global tabs
+    global mobileSearches
+
+    wordsList = utils.getWordsList(language)
+
+    progress['value'] = 0
+    try:
+        if (pc & mobile):
+            valuePerSearch = 100/(pcSearches + mobileSearches)
+        elif not mobile:
+            valuePerSearch = 100/(pcSearches)
+        else:
+            valuePerSearch = 100/(mobileSearches)
+
+    except ZeroDivisionError:
+        print("WARNING: insert a positive integer")
+        messagebox.showerror(title="Warning", message="Insert a positive integer.")
+        buttonsReset1()
+        return
+
+    if pc:
+
+        webbrowser.get(browser).open_new_tab("starting-pc-searches")
+        tabs = 1
+
+        for search in range(pcSearches):
+
+            if utils.gottaStop(halt, close): return
+            singleSearch(wordsList)
+            progress['value'] += valuePerSearch
+
+        time.sleep(2)
+
+    if mobile:
+
+        webbrowser.get(browser).open_new_tab("starting-mobile-searches")
+        tabs += 1
+        time.sleep(1)
+        keyboard.press_and_release('f12')
+        #if browser=="Firefox":          # Firefox does one less search than other browsers and doesn't go in device mode by default
+        #    mobileSearches += 1
+        #    time.sleep(1)
+        #    keyboard.press_and_release('ctrl+shift+m')
+
+        for search in range(mobileSearches):
+
+            if utils.gottaStop(halt, close): return
+            singleSearch(wordsList)
+            #if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
+            progress['value'] += valuePerSearch
+
+    time.sleep(2)
+    if pc and mobile:
+        keyboard.press_and_release('ctrl+w')
+        time.sleep(0.5)
+    keyboard.press_and_release('ctrl+w')
+
+    buttonsReset1()
+
+def search():
+
+    buttonsReset2()
+    
+    global halt
+    halt = False
+
+    thread = threading.Thread(target=realSearch, daemon=True)
+    thread.start()
+
+def stop():
+
+    global halt
+
+    utils.disableButton(stop_btn)
+    halt = True
+
 def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
 
     global pc
@@ -249,13 +183,16 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
     global mobileSearches
 
     language = la_clicked.get()
+
     browser = br_clicked.get()
+
     if (en_clicked.get() == "Bing"):
         engine = bing
     elif (en_clicked.get() == "Ecosia"):
         engine = ecosia
     else:
         engine = google
+
     if (mo_clicked.get() == "PC + Mobile"):
         pc = True
         mobile = True
@@ -265,16 +202,18 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
     else:
         pc = False
         mobile = True
-    if (ps_entry != ""):
-        try:
-            pcSearches = int(ps_entry.get())
-        except:
-            1+1
-    if (ms_entry != ""):
-        try:
-            mobileSearches = int(ms_entry.get())
-        except:
-            1+1
+        
+    try:
+        m = int(ps_entry.get())
+        n = int(ms_entry.get())
+    except ValueError:
+        messagebox.showerror(title="Warning", message="Insert a positive integer.")
+        m = 0
+        n = 0
+    if ((ps_entry != "") and (m > 0)):
+        pcSearches = m
+    if ((ms_entry != "") and (n > 0)):
+        mobileSearches = n
 
     newWindow.destroy()
     buttonsReset3()
@@ -284,19 +223,11 @@ def myDestroy(newWindow):
     newWindow.destroy()
     buttonsReset3()
 
-def disable_event():
-    pass
-
 def settings():
 
     #Buttons reset
-    start_btn["state"] = DISABLED
-    start_btn["bg"] = grey
-    start_btn["cursor"] = "arrow"
-
-    settings_btn["state"] = DISABLED
-    settings_btn["bg"] = grey
-    settings_btn["cursor"] = "arrow"
+    utils.disableButton(start_btn)
+    utils.disableButton(settings_btn)
 
     #New window
     newWindow = Toplevel(root)
@@ -304,7 +235,7 @@ def settings():
     newWindow.resizable(0, 0)
     newWindow.iconbitmap("./res/rsi.ico")
     newWindow.title("Settings")
-    newWindow.protocol("WM_DELETE_WINDOW", disable_event)
+    newWindow.protocol("WM_DELETE_WINDOW", utils.disableEvent)
     newWindow.geometry("+"+str(positionX+int((windowWidth-settingsWidth)/2))+"+"+str(positionY+40))
 
     nw_canvas = Canvas(newWindow, height=settingsHeight, width=settingsWidth)
