@@ -31,7 +31,7 @@ mobile =            True
 pcSearches =        5
 mobileSearches =    5
 tabs =              0
-loop =              True
+halt =              False
 
 # WINDOW POSITION & SIZE
 user32 = ctypes.windll.user32
@@ -126,7 +126,7 @@ def randomWordsSelection(words):
 
 def gottaStop():
 
-    if not loop:
+    if halt:
                 thread = threading.Thread(target=close, daemon=True)
                 thread.start()
                 return True
@@ -206,8 +206,8 @@ def search():
 
     buttonsReset2()
     
-    global loop
-    loop = True
+    global halt
+    halt = False
 
     thread = threading.Thread(target=realSearch, daemon=True)
     thread.start()
@@ -219,8 +219,8 @@ def stop():
     stop_btn["bg"] = grey
     stop_btn["cursor"] = "arrow"
 
-    global loop
-    loop = False
+    global halt
+    halt = True
 
 def close():
 
