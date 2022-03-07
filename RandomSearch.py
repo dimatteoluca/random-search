@@ -1,112 +1,90 @@
-import random, webbrowser, time, io, keyboard, threading
+import random, webbrowser, time, io, keyboard, threading, ctypes
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
-import ctypes                   # needed to determine screen size
 
-#SETTINGS
-    #Window position
+
+# BROWSERS 
+webbrowser.register("Chrome", None, webbrowser.BackgroundBrowser("C:\Program Files\Google\Chrome\Application\chrome.exe"))
+webbrowser.register("Edge", None, webbrowser.BackgroundBrowser("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"))
+#webbrowser.register("Firefox", None, webbrowser.BackgroundBrowser("C:\Program Files\Mozilla Firefox\Firefox.exe"))
+
+# ENGINES
+bing =      "https://www.bing.com/search?q="
+google =    "https://www.google.com/search?q="
+ecosia =    "https://www.ecosia.org/search?q="
+
+# COLORS
+cyan =      "#0ee0ed"
+azure =     "#0ca3ea"
+blue =      "#0f388e"
+pink =      "#d372a9" #bd74ad
+purple =    "#7c6bac"
+grey =      "#e0e0e0"
+
+# INITIAL STATE
+language =          "English"
+browser =           "Chrome"
+engine =            google
+pc =                True
+mobile =            True
+pcSearches =        5
+mobileSearches =    5
+tabs =              0
+halt =              False
+
+# WINDOW POSITION & SIZE
 user32 = ctypes.windll.user32
 screenWidth = user32.GetSystemMetrics(0)
 screenHeight = user32.GetSystemMetrics(1)
-if (screenWidth<2500 and screenHeight<1400):
-    positionX = 1400
-    positionY = 430
-elif (screenWidth<3800 and screenHeight<2100):
-    positionX = 1900
-    positionY = 600
-    #Colors
-celeste = "#0ee0ed"
-azzurro = "#0ca3ea"
-blu = "#0f388e"
-rosa = "#d372a9" #"#bd74ad"
-viola = "#7c6bac"
-grigio = "#e0e0e0"
-    #Engines
-bing = "https://www.bing.com/search?q="
-google = "https://www.google.com/search?q="
-ecosia = "https://www.ecosia.org/search?q="
-    #Browsers
-webbrowser.register("Chrome", None, webbrowser.BackgroundBrowser("C:\Program Files\Google\Chrome\Application\chrome.exe"))
-webbrowser.register("Edge", None, webbrowser.BackgroundBrowser("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"))
-webbrowser.register("Firefox", None, webbrowser.BackgroundBrowser("C:\Program Files\Mozilla Firefox\Firefox.exe"))
-    #Global vars
-pc = True
-mobile = True
-language = "English"
-loop = True
-tabs = 0
-browser = "Chrome"
-engine = google
-pcSearches = 5
-mobileSearches = 5
+positionX = int((screenWidth/4)*3)
+positionY = int((screenHeight/5)*2)
+windowWidth = 410
+#windowHeight = auto
+settingsWidth = 280
+settingsHeight = 350
 
 
-root = Tk()                         # beginning of the interface
-
-root.title("RandomSearch")                  # window title
-root.iconbitmap("./res/rsi.ico")                 # window icon
-root.attributes('-topmost', True)           # the window is always on top
-root.resizable(0, 0)                        # the window is not resizable
-if not (screenWidth<1920 and screenHeight<1080):
-    root.geometry("+"+str(positionX)+"+"+str(positionY))
-
-canvas = Canvas(root, width=430)                       # needed for the layout
-#canvas.pack()                               # canvas size depends on the size of the elements in it
-canvas.grid(rowspan=5, columnspan=1)        # grid layout (5x1)
-
-#(  1  )Logo
-logo = Image.open("./res/rsl.png").resize([280,270])
-logo = ImageTk.PhotoImage(logo)             # converts the Pillow Image into a Tkinter Image
-logo_label = Label(image=logo)       
-logo_label.image = logo
-logo_label.grid(row=0, column=0, pady=(30,0))
-
-#(  2  )Parent widget for the language selection
-#lang_frame = Frame(root)
-#lang_frame.grid(row=1, column=0, pady=20)
-
-
-#////////////////////////////////////////////////////////////////////////////////////////////////// FUNCTIONS START
-def btnsReset1():
+# FUNCTIONS BEGINNING ///////////////////////////////////////////////////////////////////////////////////////////////
+def buttonsReset1():
 
     start_btn["state"] = NORMAL
-    start_btn["bg"] = rosa
+    start_btn["bg"] = pink
     start_btn["cursor"] = "hand2"
 
     stop_btn["state"] = DISABLED
-    stop_btn["bg"] = grigio
+    stop_btn["bg"] = grey
     stop_btn["cursor"] = "arrow"
 
     settings_btn["state"] = NORMAL
-    settings_btn["bg"] = azzurro
+    settings_btn["bg"] = azure
     settings_btn["cursor"] = "hand2"
 
-def btnsReset2():
+def buttonsReset2():
 
     start_btn["state"] = DISABLED
-    start_btn["bg"] = grigio
+    start_btn["bg"] = grey
     start_btn["cursor"] = "arrow"
 
     stop_btn["state"] = NORMAL
-    stop_btn["bg"] = viola
+    stop_btn["bg"] = purple
     stop_btn["cursor"] = "hand2"
 
     settings_btn["state"] = DISABLED
-    settings_btn["bg"] = grigio
+    settings_btn["bg"] = grey
     settings_btn["cursor"] = "arrow"
 
-def btnsReset3():
+def buttonsReset3():
 
     start_btn["state"] = NORMAL
-    start_btn["bg"] = rosa
+    start_btn["bg"] = pink
     start_btn["cursor"] = "hand2"
 
     settings_btn["state"] = NORMAL
-    settings_btn["bg"] = azzurro
+    settings_btn["bg"] = azure
     settings_btn["cursor"] = "hand2"
 
-def languageSelection():
+def selectedLanguage():
 
     if (language=="English"):
         file = "./res/eng.txt"
@@ -116,27 +94,31 @@ def languageSelection():
 
     with io.open(file, mode="r", encoding="utf-8") as file:
         allText = file.read()
-        words = list(map(str, allText.split('\n')))
+        wordsList = list(map(str, allText.split('\n')))
 
-    return words
+    return wordsList
 
-def randomWords(words):
+def randomWordsSelection(words):
 
-    rndm = random.randrange(20)
+    randomNumber = random.randrange(20)
 
-    if rndm==0:					            # ~05% probability
+    # 1 word,  05% chance
+    if randomNumber==0:
         url = "+".join([engine, random.choice(words)])
         sleepTime = 1.2
 
-    if rndm in [1,2,3,4,5]:		            # ~25% probability
+    # 2 words, 25% chance
+    if randomNumber in range(1,6):
         url = "+".join([engine, random.choice(words), random.choice(words)])
         sleepTime = 2.2
 
-    if rndm in [6,7,8,9,10,11,12,13]:		# ~40% probability
+    # 3 words, 40% chance
+    if randomNumber in range(6,14):
         url = "+".join([engine, random.choice(words), random.choice(words), random.choice(words)])
         sleepTime = 3
 
-    if rndm in [14,15,16,17,18,19]:			# ~30% probability
+    # 4 words, 30% chance
+    if randomNumber in range(14,20):
         url = "+".join([engine, random.choice(words), random.choice(words), random.choice(words), random.choice(words)])
         sleepTime = 3.7
     
@@ -144,16 +126,16 @@ def randomWords(words):
 
 def gottaStop():
 
-    if not loop:
+    if halt:
                 thread = threading.Thread(target=close, daemon=True)
                 thread.start()
                 return True
 
-def oneSearch(words):
+def singleSearch(words):
 
-    rw = randomWords(words)
-    url = rw[0]
-    sleepTime = rw[1]
+    rws = randomWordsSelection(words)
+    url = rws[0]
+    sleepTime = rws[1]
 
     time.sleep(1)
     if gottaStop(): return
@@ -163,12 +145,12 @@ def oneSearch(words):
     time.sleep(0.5)
     keyboard.press_and_release('enter')
 
-def real_search():
+def realSearch():
 
     global tabs
     global mobileSearches
 
-    words = languageSelection()
+    wordsList = selectedLanguage()
 
     progress['value'] = 0
     if (pc & mobile):
@@ -186,58 +168,59 @@ def real_search():
         for search in range(pcSearches):
 
             if gottaStop(): return
-            oneSearch(words)
+            singleSearch(wordsList)
             progress['value'] += valuePerSearch
 
-        time.sleep(1.5)
+        time.sleep(2)
         if not mobile:
             keyboard.press_and_release('ctrl+w')
 
     if mobile:
 
         webbrowser.get(browser).open_new_tab("starting-mobile-searches")
+        tabs += 1
         time.sleep(1)
         keyboard.press_and_release('f12')
-        if browser=="Firefox":                              # Firefox does one less search than other browsers and doesn't go in device mode by default
-            mobileSearches += 1
-            time.sleep(1)
-            keyboard.press_and_release('ctrl+shift+m')
-        tabs = 1
+        #if browser=="Firefox":          # Firefox does one less search than other browsers and doesn't go in device mode by default
+        #    mobileSearches += 1
+        #    time.sleep(1)
+        #    keyboard.press_and_release('ctrl+shift+m')
+        #tabs = 1
 
         for search in range(mobileSearches):
 
             if gottaStop(): return
-            oneSearch(words)
-            if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
+            singleSearch(wordsList)
+            #if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
             progress['value'] += valuePerSearch
 
-        time.sleep(1.5)
+        time.sleep(2)
         keyboard.press_and_release('ctrl+w')
         if pc:
             time.sleep(1)
             keyboard.press_and_release('ctrl+w')
 
-    btnsReset1()
+    buttonsReset1()
 
 def search():
 
-    btnsReset2()
+    buttonsReset2()
     
-    global loop
-    loop = True
+    global halt
+    halt = False
 
-    thread = threading.Thread(target=real_search, daemon=True)
+    thread = threading.Thread(target=realSearch, daemon=True)
     thread.start()
 
 def stop():
 
     #Buttons reset
     stop_btn["state"] = DISABLED
-    stop_btn["bg"] = grigio
+    stop_btn["bg"] = grey
     stop_btn["cursor"] = "arrow"
 
-    global loop
-    loop = False
+    global halt
+    halt = True
 
 def close():
 
@@ -253,7 +236,7 @@ def close():
         tabs -= 1
 
     progress['value'] = 100
-    btnsReset3()
+    buttonsReset3()
 
 def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
 
@@ -294,12 +277,12 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
             1+1
 
     newWindow.destroy()
-    btnsReset3()
+    buttonsReset3()
 
 def myDestroy(newWindow):
 
     newWindow.destroy()
-    btnsReset3()
+    buttonsReset3()
 
 def disable_event():
     pass
@@ -308,11 +291,11 @@ def settings():
 
     #Buttons reset
     start_btn["state"] = DISABLED
-    start_btn["bg"] = grigio
+    start_btn["bg"] = grey
     start_btn["cursor"] = "arrow"
 
     settings_btn["state"] = DISABLED
-    settings_btn["bg"] = grigio
+    settings_btn["bg"] = grey
     settings_btn["cursor"] = "arrow"
 
     #New window
@@ -322,10 +305,9 @@ def settings():
     newWindow.iconbitmap("./res/rsi.ico")
     newWindow.title("Settings")
     newWindow.protocol("WM_DELETE_WINDOW", disable_event)
-    if (screenWidth>=1920 and screenHeight>=1080):
-        newWindow.geometry("+"+str(positionX+50)+"+"+str(positionY+30))
+    newWindow.geometry("+"+str(positionX+int((windowWidth-settingsWidth)/2))+"+"+str(positionY+40))
 
-    nw_canvas = Canvas(newWindow, height=350, width=280)
+    nw_canvas = Canvas(newWindow, height=settingsHeight, width=settingsWidth)
     nw_canvas.pack()
     nw_canvas.grid(rowspan=7, columnspan=2)
 
@@ -408,8 +390,28 @@ def settings():
 
 def openLink(link):
     webbrowser.open_new_tab(link)
-#////////////////////////////////////////////////////////////////////////////////////////////////// FUNCTIONS END
+# FUNCTIONS END //////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+# INTERFACE BEGINNING
+root = Tk()                         # beginning of the interface
+
+root.title("RandomSearch")                  # window title
+root.iconbitmap("./res/rsi.ico")            # window icon
+root.attributes('-topmost', True)           # the window is always on top
+root.resizable(0, 0)                        # the window is not resizable
+root.geometry("+"+str(positionX)+"+"+str(positionY))
+
+canvas = Canvas(root, width=windowWidth)    # needed for the layout
+#canvas.pack()                              # canvas size depends on the size of the elements in it
+canvas.grid(rowspan=5, columnspan=1)        # grid layout (5x1)
+
+#(  1  )Logo
+logo = Image.open("./res/rsl.png").resize([280,270])
+logo = ImageTk.PhotoImage(logo)             # converts the Pillow Image into a Tkinter Image
+logo_label = Label(image=logo)       
+logo_label.image = logo
+logo_label.grid(row=0, column=0, pady=(30,0))
 
 #(  2  )Progress bar
 style = ttk.Style()
@@ -425,31 +427,32 @@ btns_frame.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(0,40))
 
     #Start button
 start_text = StringVar()
-start_btn = Button(btns_frame, textvariable=start_text, font=("Raleway", "11","bold"), bg=rosa, fg="white", height=2, width=12, command=lambda:search(), cursor="hand2")
+start_btn = Button(btns_frame, textvariable=start_text, font=("Raleway", "11","bold"), bg=pink, fg="white", height=2, width=12, command=lambda:search(), cursor="hand2")
 start_text.set("Start")
 start_btn.grid(row=0, column=0)
 
     #Stop button
 stop_text = StringVar()
-stop_btn = Button(btns_frame, textvariable=stop_text, font=("Raleway", "11","bold"), bg=grigio, fg="white", height=2, width=12, command=lambda:stop(), state=DISABLED)
+stop_btn = Button(btns_frame, textvariable=stop_text, font=("Raleway", "11","bold"), bg=grey, fg="white", height=2, width=12, command=lambda:stop(), state=DISABLED)
 stop_text.set("Stop")
 stop_btn.grid(row=0, column=1)
 
     #Settings button
 settings_text = StringVar()
-settings_btn = Button(btns_frame, textvariable=settings_text, font=("Raleway", "11","bold"), bg=azzurro, fg="white", height=2, width=12, command=lambda:settings(), cursor="hand2")
+settings_btn = Button(btns_frame, textvariable=settings_text, font=("Raleway", "11","bold"), bg=azure, fg="white", height=2, width=12, command=lambda:settings(), cursor="hand2")
 settings_text.set("Settings")
 settings_btn.grid(row=1, column=0)
 
     #Quit button
 quit_text = StringVar()
-quit_btn = Button(btns_frame, textvariable=quit_text, font=("Raleway", "11","bold"), bg=blu, fg="white", height=2, width=12, command=root.quit, cursor="hand2")
+quit_btn = Button(btns_frame, textvariable=quit_text, font=("Raleway", "11","bold"), bg=blue, fg="white", height=2, width=12, command=root.quit, cursor="hand2")
 quit_text.set("Quit")
 quit_btn.grid(row=1, column=1)
 
 #(  5  )Info
-info_label = Label(root, text="https://github.com/dimatteoluca", fg="grey", cursor="hand2")
+info_label = Label(root, text="Info: https://github.com/dimatteoluca", fg="grey", cursor="hand2")
 info_label.bind("<Button-1>", lambda e: openLink("https://github.com/dimatteoluca"))
 info_label.grid(row=5, column=0)
 
-root.mainloop()                         # end of the interface
+root.mainloop()                         
+# INTERFACE END
