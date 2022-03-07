@@ -189,29 +189,30 @@ def real_search():
             oneSearch(words)
             progress['value'] += valuePerSearch
 
-        time.sleep(1.5)
+        time.sleep(2)
         if not mobile:
             keyboard.press_and_release('ctrl+w')
 
     if mobile:
 
         webbrowser.get(browser).open_new_tab("starting-mobile-searches")
+        tabs += 1
         time.sleep(1)
         keyboard.press_and_release('f12')
-        if browser=="Firefox":                              # Firefox does one less search than other browsers and doesn't go in device mode by default
-            mobileSearches += 1
-            time.sleep(1)
-            keyboard.press_and_release('ctrl+shift+m')
-        tabs = 1
+        #if browser=="Firefox":                              # Firefox does one less search than other browsers and doesn't go in device mode by default
+        #    mobileSearches += 1
+        #    time.sleep(1)
+        #    keyboard.press_and_release('ctrl+shift+m')
+        #tabs = 1
 
         for search in range(mobileSearches):
 
             if gottaStop(): return
             oneSearch(words)
-            if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
+            #if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
             progress['value'] += valuePerSearch
 
-        time.sleep(1.5)
+        time.sleep(2)
         keyboard.press_and_release('ctrl+w')
         if pc:
             time.sleep(1)
