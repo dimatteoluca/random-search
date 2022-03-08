@@ -34,16 +34,16 @@ mobileSearchesNumber =  5
 tabs =                  0
 halt =                  False
 
-# WINDOW POSITION & SIZE
+# WINDOWS POSITION & SIZE
 user32 = ctypes.windll.user32
 screenWidth = user32.GetSystemMetrics(0)
 screenHeight = user32.GetSystemMetrics(1)
 positionX = int((screenWidth/4)*3)
 positionY = int((screenHeight/5)*2)
-windowWidth = 410
+windowWidth = 380
 #windowHeight = auto
-settingsWidth = 280
-settingsHeight = 350
+settingsWindowWidth = 280
+settingsWindowHeight = 350
 
 
 # FUNCTIONS BEGINNING //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,35 +64,15 @@ def buttonsReset3():
     utils.enableButton(start_btn, pink)
     utils.enableButton(settings_btn, azure)
 
-def singleSearch(wordsList):
-    global tabs
+def search():
 
-    if utils.gottaStop(halt, browser, tabs):
-        tabs = 0
-        progressBar['value'] = 100
-        buttonsReset3()
-        return
-    rw = utils.randomWordsURLandSleepTime(engine, wordsList)
-    url = rw[0]
-    sleepTime = rw[1]
-    utils.doSearch(url, sleepTime)
-
-def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
+    buttonsReset2()
     
-    global tabs
+    global halt
+    halt = False
 
-    webbrowser.get(browser).open_new_tab(searchesType)
-    tabs += 1
-
-    if (searchesType == "starting-mobile-searches"):
-        utils.setBrowsersDevInterface()
-
-    for search in range(searchesNumber):
-
-        singleSearch(wordsList)
-        progressBar['value'] += valuePerSearch
-
-    time.sleep(2)
+    thread = threading.Thread(target=realSearch, daemon=True)
+    thread.start()
 
 def realSearch():
 
@@ -113,15 +93,35 @@ def realSearch():
     utils.closeTabs(browser, tabs)
     buttonsReset1()
 
-def search():
-
-    buttonsReset2()
+def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
     
-    global halt
-    halt = False
+    global tabs
 
-    thread = threading.Thread(target=realSearch, daemon=True)
-    thread.start()
+    webbrowser.get(browser).open_new_tab(searchesType)
+    tabs += 1
+
+    if (searchesType == "starting-mobile-searches"):
+        utils.setBrowsersDevInterface()
+
+    for search in range(searchesNumber):
+
+        singleSearch(wordsList)
+        progressBar['value'] += valuePerSearch
+
+    time.sleep(2)
+
+def singleSearch(wordsList):
+    global tabs
+
+    if utils.gottaStop(halt, browser, tabs):
+        tabs = 0
+        progressBar['value'] = 100
+        buttonsReset3()
+        return
+    rw = utils.randomWordsURLandSleepTime(engine, wordsList)
+    url = rw[0]
+    sleepTime = rw[1]
+    utils.doSearch(url, sleepTime)
 
 def stop():
 
@@ -130,13 +130,119 @@ def stop():
     utils.disableButton(stop_btn)
     halt = True
 
-def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
+def settings():
 
-    global pc
-    global mobile
+    # Buttons reset
+    utils.disableButton(start_btn)
+    utils.disableButton(settings_btn)
+
+    # New window
+    settingsWindow = Toplevel(root)
+    settingsWindow.title("Settings")
+    settingsWindow.iconbitmap("./res/rsi.ico")
+    settingsWindow.attributes('-topmost', True) 
+    settingsWindow.resizable(0, 0)
+    settingsWindow.protocol("WM_DELETE_WINDOW", utils.disableEvent)
+    settingsWindow.geometry("+"+str(positionX+int((windowWidth-settingsWindowWidth)/2))+"+"+str(positionY+40))
+
+    sw_canvas = Canvas(settingsWindow, height=settingsWindowHeight, width=settingsWindowWidth)
+    #sw_canvas.pack()
+    sw_canvas.grid(rowspan=7, columnspan=2)
+
+    #(  1  ) Language
+    lang_label = Label(settingsWindow, text="Search language:")
+    lang_label.grid(row=0, column=0, sticky=E)
+    la_options = ["English", "Italiano"]
+    la_clicked = StringVar()
+    if language=="English":
+        la_clicked.set(la_options[0])
+    else:
+        la_clicked.set(la_options[1])
+    la_drop = OptionMenu(settingsWindow, la_clicked, *la_options)
+    la_drop.grid(row=0, column=1)
+
+    #(  2  ) Browser
+    browser_label = Label(settingsWindow, text="Browser:")
+    browser_label.grid(row=1, column=0, sticky=E)
+    br_options = ["Chrome", "Edge"]
+    br_clicked = StringVar()
+    if browser=="Chrome":
+        br_clicked.set(br_options[0])
+    elif browser=="Edge":
+        br_clicked.set(br_options[1])
+    else:
+        br_clicked.set(br_options[2])
+    br_drop = OptionMenu(settingsWindow, br_clicked, *br_options)
+    br_drop.grid(row=1, column=1)
+
+    #(  3  ) Engine
+    engine_label = Label(settingsWindow, text="Engine:")
+    engine_label.grid(row=2, column=0, sticky=E)
+    en_options = ["Bing", "Ecosia", "Google"]
+    en_clicked = StringVar()
+    if engine==bing:
+        en_clicked.set(en_options[0])
+    elif engine==ecosia:
+        en_clicked.set(en_options[1])
+    else:
+        en_clicked.set(en_options[2])
+    en_drop = OptionMenu(settingsWindow, en_clicked, *en_options)
+    en_drop.grid(row=2, column=1)
+
+    #(  4  ) Mode
+    mode_label = Label(settingsWindow, text="Search mode:")
+    mode_label.grid(row=3, column=0, sticky=E)
+    mo_options = ["PC + Mobile", "PC", "Mobile"]
+    mo_clicked = StringVar()
+    if pc & mobile:
+        mo_clicked.set(mo_options[0])
+    elif not mobile:
+        mo_clicked.set(mo_options[1])
+    else:
+        mo_clicked.set(mo_options[2])
+    mo_drop = OptionMenu(settingsWindow, mo_clicked, *mo_options)
+    mo_drop.grid(row=3, column=1)
+
+    #(  5  ) N. of pc searches
+    pcSearchesNumber_label = Label(settingsWindow, text="PC searches:")
+    pcSearchesNumber_label.grid(row=4, column=0, sticky=E)
+    ps_entry = Entry(settingsWindow, width=6, justify="center")
+    ps_entry.insert(0, pcSearchesNumber)
+    ps_entry.grid(row=4, column=1)
+
+    #(  6  ) N. of mobile searches
+    mobileSearchesNumber_label = Label(settingsWindow, text="Mobile searches:")
+    mobileSearchesNumber_label.grid(row=5, column=0, sticky=E)
+    ms_entry = Entry(settingsWindow, width=6, justify="center")
+    ms_entry.insert(0, mobileSearchesNumber)
+    ms_entry.grid(row=5, column=1)
+
+    #(  7  ) Buttons
+    buttonsFrame = Frame(settingsWindow)
+    buttonsFrame.grid(row=6, column=0,rowspan=1, columnspan=2)
+        #ok
+    ok_text = StringVar()
+    ok_btn = Button(buttonsFrame, textvariable=ok_text, height=1, width=10, command=lambda:ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry), cursor="hand2")
+    ok_text.set("Ok")
+    ok_btn.grid(row=0, column=0)
+        #cancel
+    cancel_text = StringVar()
+    cancel_btn = Button(buttonsFrame, textvariable=cancel_text, height=1, width=10, command=lambda:myDestroy(settingsWindow), cursor="hand2")
+    cancel_text.set("Cancel")
+    cancel_btn.grid(row=0, column=1)
+
+def myDestroy(settingsWindow):
+
+    settingsWindow.destroy()
+    buttonsReset3()
+
+def ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
+
     global language
     global browser
     global engine
+    global pc
+    global mobile
     global pcSearchesNumber
     global mobileSearchesNumber
 
@@ -173,109 +279,8 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
     if ((ms_entry != "") and (n > 0)):
         mobileSearchesNumber = n
 
-    newWindow.destroy()
+    settingsWindow.destroy()
     buttonsReset3()
-
-def myDestroy(newWindow):
-
-    newWindow.destroy()
-    buttonsReset3()
-
-def settings():
-
-    #Buttons reset
-    utils.disableButton(start_btn)
-    utils.disableButton(settings_btn)
-
-    #New window
-    newWindow = Toplevel(root)
-    newWindow.attributes('-topmost', True) 
-    newWindow.resizable(0, 0)
-    newWindow.iconbitmap("./res/rsi.ico")
-    newWindow.title("Settings")
-    newWindow.protocol("WM_DELETE_WINDOW", utils.disableEvent)
-    newWindow.geometry("+"+str(positionX+int((windowWidth-settingsWidth)/2))+"+"+str(positionY+40))
-
-    nw_canvas = Canvas(newWindow, height=settingsHeight, width=settingsWidth)
-    nw_canvas.pack()
-    nw_canvas.grid(rowspan=7, columnspan=2)
-
-    #Selection label
-    lang_label = Label(newWindow, text="Search language:")
-    lang_label.grid(row=0, column=0, sticky=E)
-    la_options = ["English", "Italiano"]
-    la_clicked = StringVar()
-    if language=="English":
-        la_clicked.set(la_options[0])
-    else:
-        la_clicked.set(la_options[1])
-    la_drop = OptionMenu(newWindow, la_clicked, *la_options)
-    la_drop.grid(row=0, column=1)
-    #browser
-    browser_label = Label(newWindow, text="Browser:")
-    browser_label.grid(row=1, column=0, sticky=E)
-    # br_options = ["Chrome", "Edge", "Firefox"]
-    br_options = ["Chrome", "Edge"]
-    br_clicked = StringVar()
-    if browser=="Chrome":
-        br_clicked.set(br_options[0])
-    elif browser=="Edge":
-        br_clicked.set(br_options[1])
-    else:
-        br_clicked.set(br_options[2])
-    br_drop = OptionMenu(newWindow, br_clicked, *br_options)
-    br_drop.grid(row=1, column=1)
-    #engine
-    engine_label = Label(newWindow, text="Engine:")
-    engine_label.grid(row=2, column=0, sticky=E)
-    en_options = ["Bing", "Ecosia", "Google"]
-    en_clicked = StringVar()
-    if engine==bing:
-        en_clicked.set(en_options[0])
-    elif engine==ecosia:
-        en_clicked.set(en_options[1])
-    else:
-        en_clicked.set(en_options[2])
-    en_drop = OptionMenu(newWindow, en_clicked, *en_options)
-    en_drop.grid(row=2, column=1)
-    #n. of pc searches
-    pcSearchesNumber_label = Label(newWindow, text="PC searches:")
-    pcSearchesNumber_label.grid(row=4, column=0, sticky=E)
-    ps_entry = Entry(newWindow, width=6, justify="center")
-    ps_entry.insert(0, pcSearchesNumber)
-    ps_entry.grid(row=4, column=1)
-    #n. of mobile searches
-    mobileSearchesNumber_label = Label(newWindow, text="Mobile searches:")
-    mobileSearchesNumber_label.grid(row=5, column=0, sticky=E)
-    ms_entry = Entry(newWindow, width=6, justify="center")
-    ms_entry.insert(0, mobileSearchesNumber)
-    ms_entry.grid(row=5, column=1)
-    #mode
-    mode_label = Label(newWindow, text="Search mode:")
-    mode_label.grid(row=3, column=0, sticky=E)
-    mo_options = ["PC + Mobile", "PC", "Mobile"]
-    mo_clicked = StringVar()
-    if pc & mobile:
-        mo_clicked.set(mo_options[0])
-    elif not mobile:
-        mo_clicked.set(mo_options[1])
-    else:
-        mo_clicked.set(mo_options[2])
-    mo_drop = OptionMenu(newWindow, mo_clicked, *mo_options)
-    mo_drop.grid(row=3, column=1)
-    #parent widget for the buttons
-    buttonsFrame = Frame(newWindow)
-    buttonsFrame.grid(row=6, column=0,rowspan=1, columnspan=2)
-        #ok
-    ok_text = StringVar()
-    ok_btn = Button(buttonsFrame, textvariable=ok_text, height=1, width=10, command=lambda:ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry), cursor="hand2")
-    ok_text.set("Ok")
-    ok_btn.grid(row=0, column=0)
-        #cancel
-    cancel_text = StringVar()
-    cancel_btn = Button(buttonsFrame, textvariable=cancel_text, height=1, width=10, command=lambda:myDestroy(newWindow), cursor="hand2")
-    cancel_text.set("Cancel")
-    cancel_btn.grid(row=0, column=1)
 # FUNCTIONS END
 
 
@@ -306,29 +311,25 @@ progressBar = ttk.Progressbar(root, orient=HORIZONTAL, length=240, mode='determi
 progressBar.pack_forget()
 progressBar.grid(row=2, column=0, pady=(0,20))
 
-#(  3-4  ) Parent widget for the buttons
+#(  3-4  ) Buttons
 btns_frame = Frame(root)
 btns_frame.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(0,40))
-
-    # Start button
+    # Start
 start_text = StringVar()
 start_btn = Button(btns_frame, textvariable=start_text, font=("Raleway", "11","bold"), bg=pink, fg="white", height=2, width=12, command=lambda:search(), cursor="hand2")
 start_text.set("Start")
 start_btn.grid(row=0, column=0)
-
-    # Stop button
+    # Stop
 stop_text = StringVar()
 stop_btn = Button(btns_frame, textvariable=stop_text, font=("Raleway", "11","bold"), bg=grey, fg="white", height=2, width=12, command=lambda:stop(), state=DISABLED)
 stop_text.set("Stop")
 stop_btn.grid(row=0, column=1)
-
-    # Settings button
+    # Settings
 settings_text = StringVar()
 settings_btn = Button(btns_frame, textvariable=settings_text, font=("Raleway", "11","bold"), bg=azure, fg="white", height=2, width=12, command=lambda:settings(), cursor="hand2")
 settings_text.set("Settings")
 settings_btn.grid(row=1, column=0)
-
-    # Quit button
+    # Quit
 quit_text = StringVar()
 quit_btn = Button(btns_frame, textvariable=quit_text, font=("Raleway", "11","bold"), bg=blue, fg="white", height=2, width=12, command=root.quit, cursor="hand2")
 quit_text.set("Quit")
