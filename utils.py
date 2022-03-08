@@ -88,12 +88,6 @@ def randomWordsURLandSleepTime(engine, wordsList):
     
     return (url, sleepTime)
 
-def gottaStop(halt, browser, tabs):
-    if halt:
-                thread = threading.Thread(target=closeTabs(browser, tabs), daemon=True)
-                thread.start()
-                return True
-
 def getProgressBarValuePerSearch(pc, mobile, pcSearchesNumber, mobileSearchesNumber):
     if (pc & mobile):
         valuePerSearch = 100/(pcSearchesNumber + mobileSearchesNumber)

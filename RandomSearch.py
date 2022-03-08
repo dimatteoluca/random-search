@@ -90,7 +90,9 @@ def realSearch():
 
         doSearches(wordsList, "starting-mobile-searches", mobileSearchesNumber, valuePerSearch)
 
-    utils.closeTabs(browser, tabs)
+    if (tabs > 0):
+        utils.closeTabs(browser, tabs)
+        tabs = 0
     buttonsReset1()
 
 def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
@@ -105,19 +107,20 @@ def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
 
     for search in range(searchesNumber):
 
-        singleSearch(wordsList)
+        if (singleSearch(wordsList) == -1):
+            return
         progressBar['value'] += valuePerSearch
 
     time.sleep(2)
 
 def singleSearch(wordsList):
+    
     global tabs
 
-    if utils.gottaStop(halt, browser, tabs):
-        tabs = 0
+    if halt:
         progressBar['value'] = 100
         buttonsReset3()
-        return
+        return -1
     rw = utils.randomWordsURLandSleepTime(engine, wordsList)
     url = rw[0]
     sleepTime = rw[1]
