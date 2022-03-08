@@ -43,3 +43,11 @@ else:
     extended_arg = 0 
 yield (i, op, arg)
 ```
+
+Alternatively it is possible to install `pyinstaller` and execute the following command:
+
+```
+pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/lucad/Documents/git/random-search/res/rsi.ico" --add-data "C:/Users/lucad/Documents/git/random-search/utils.py;." --add-data "C:/Users/lucad/Documents/git/random-search/res;res/"  "C:/Users/lucad/Documents/git/random-search/RandomSearch.py"
+```
+
+Only the 'dist' directory is important.
