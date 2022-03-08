@@ -138,12 +138,12 @@ def settings():
 
     # New window
     settingsWindow = Toplevel(root)
+    settingsWindow.geometry("+"+str(positionX+int((windowWidth-settingsWindowWidth)/2))+"+"+str(positionY+40))
     settingsWindow.title("Settings")
     settingsWindow.iconbitmap("./res/rsi.ico")
     settingsWindow.attributes('-topmost', True) 
     settingsWindow.resizable(0, 0)
     settingsWindow.protocol("WM_DELETE_WINDOW", utils.disableEvent)
-    settingsWindow.geometry("+"+str(positionX+int((windowWidth-settingsWindowWidth)/2))+"+"+str(positionY+40))
 
     sw_canvas = Canvas(settingsWindow, height=settingsWindowHeight, width=settingsWindowWidth)
     #sw_canvas.pack()
@@ -287,11 +287,11 @@ def ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry,
 # INTERFACE BEGINNING //////////////////////////////////////////////////////////////////////////////////////////////////
 root = Tk()
 
+root.geometry("+"+str(positionX)+"+"+str(positionY))
 root.title("RandomSearch")                  # window title
 root.iconbitmap("./res/rsi.ico")            # window icon
 root.attributes('-topmost', True)           # the window is always on top
 root.resizable(0, 0)                        # the window is not resizable
-root.geometry("+"+str(positionX)+"+"+str(positionY))
 
 canvas = Canvas(root, width=windowWidth)    # needed for the layout
 canvas.grid(rowspan=5, columnspan=1)        # grid layout (5x1)
