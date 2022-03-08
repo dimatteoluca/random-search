@@ -24,15 +24,15 @@ purple =    "#7c6bac"
 grey =      "#e0e0e0"
 
 # INITIAL STATE
-language =          "English"
-browser =           "Chrome"
-engine =            google
-pc =                True
-mobile =            True
-pcSearches =        5
-mobileSearches =    5
-tabs =              0
-halt =              False
+language =              "English"
+browser =               "Chrome"
+engine =                google
+pc =                    True
+mobile =                True
+pcSearchesNumber =      5
+mobileSearchesNumber =  5
+tabs =                  0
+halt =                  False
 
 # WINDOW POSITION & SIZE
 user32 = ctypes.windll.user32
@@ -46,7 +46,7 @@ settingsWidth = 280
 settingsHeight = 350
 
 
-# FUNCTIONS BEGINNING ///////////////////////////////////////////////////////////////////////////////////////////////
+# FUNCTIONS BEGINNING //////////////////////////////////////////////////////////////////////////////////////////////////
 def buttonsReset1():
 
     utils.enableButton(start_btn, pink)
@@ -64,95 +64,53 @@ def buttonsReset3():
     utils.enableButton(start_btn, pink)
     utils.enableButton(settings_btn, azure)
 
-def close():
-
+def singleSearch(wordsList):
     global tabs
+
+    if utils.gottaStop(halt, browser, tabs):
+        tabs = 0
+        progressBar['value'] = 100
+        buttonsReset3()
+        return
+    rw = utils.randomWordsURLandSleepTime(engine, wordsList)
+    url = rw[0]
+    sleepTime = rw[1]
+    utils.doSearch(url, sleepTime)
+
+def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
     
-    webbrowser.get(browser).open_new_tab("closing-tabs")
+    global tabs
+
+    webbrowser.get(browser).open_new_tab(searchesType)
     tabs += 1
 
-    for tab in range(tabs):
+    if (searchesType == "starting-mobile-searches"):
+        utils.setBrowsersDevInterface()
 
-        time.sleep(0.5)
-        keyboard.press_and_release('ctrl+w')
-        tabs -= 1
+    for search in range(searchesNumber):
 
-    progress['value'] = 100
-    buttonsReset3()
+        singleSearch(wordsList)
+        progressBar['value'] += valuePerSearch
 
-def singleSearch(wordsList):
-
-    rws = utils.randomWordsSelection(engine, wordsList)
-    url = rws[0]
-    sleepTime = rws[1]
-
-    time.sleep(1)
-    if utils.gottaStop(halt, close): return
-    keyboard.press_and_release('ctrl+l')
-    time.sleep(sleepTime)
-    keyboard.write(url)
-    time.sleep(0.5)
-    keyboard.press_and_release('enter')
+    time.sleep(2)
 
 def realSearch():
 
     global tabs
-    global mobileSearches
 
     wordsList = utils.getWordsList(language)
-
-    progress['value'] = 0
-    try:
-        if (pc & mobile):
-            valuePerSearch = 100/(pcSearches + mobileSearches)
-        elif not mobile:
-            valuePerSearch = 100/(pcSearches)
-        else:
-            valuePerSearch = 100/(mobileSearches)
-
-    except ZeroDivisionError:
-        print("WARNING: insert a positive integer")
-        messagebox.showerror(title="Warning", message="Insert a positive integer.")
-        buttonsReset1()
-        return
+    valuePerSearch = utils.getProgressBarValuePerSearch(pc, mobile, pcSearchesNumber, mobileSearchesNumber)
+    progressBar['value'] = 0
 
     if pc:
 
-        webbrowser.get(browser).open_new_tab("starting-pc-searches")
-        tabs = 1
-
-        for search in range(pcSearches):
-
-            if utils.gottaStop(halt, close): return
-            singleSearch(wordsList)
-            progress['value'] += valuePerSearch
-
-        time.sleep(2)
+        doSearches(wordsList, "starting-pc-searches", pcSearchesNumber, valuePerSearch)
 
     if mobile:
 
-        webbrowser.get(browser).open_new_tab("starting-mobile-searches")
-        tabs += 1
-        time.sleep(1)
-        keyboard.press_and_release('f12')
-        #if browser=="Firefox":          # Firefox does one less search than other browsers and doesn't go in device mode by default
-        #    mobileSearches += 1
-        #    time.sleep(1)
-        #    keyboard.press_and_release('ctrl+shift+m')
+        doSearches(wordsList, "starting-mobile-searches", mobileSearchesNumber, valuePerSearch)
 
-        for search in range(mobileSearches):
-
-            if utils.gottaStop(halt, close): return
-            singleSearch(wordsList)
-            #if browser=='Firefox' and search==(mobileSearches-1): break      # read previous comment
-            progress['value'] += valuePerSearch
-
-    time.sleep(2)
-    if pc and mobile:
-        keyboard.press_and_release('ctrl+w')
-        time.sleep(0.5)
-    keyboard.press_and_release('ctrl+w')
-
+    utils.closeTabs(browser, tabs)
     buttonsReset1()
 
 def search():
@@ -179,8 +137,8 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
     global language
     global browser
     global engine
-    global pcSearches
-    global mobileSearches
+    global pcSearchesNumber
+    global mobileSearchesNumber
 
     language = la_clicked.get()
 
@@ -211,9 +169,9 @@ def ok(newWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_e
         m = 0
         n = 0
     if ((ps_entry != "") and (m > 0)):
-        pcSearches = m
+        pcSearchesNumber = m
     if ((ms_entry != "") and (n > 0)):
-        mobileSearches = n
+        mobileSearchesNumber = n
 
     newWindow.destroy()
     buttonsReset3()
@@ -281,16 +239,16 @@ def settings():
     en_drop = OptionMenu(newWindow, en_clicked, *en_options)
     en_drop.grid(row=2, column=1)
     #n. of pc searches
-    pcSearches_label = Label(newWindow, text="PC searches:")
-    pcSearches_label.grid(row=4, column=0, sticky=E)
+    pcSearchesNumber_label = Label(newWindow, text="PC searches:")
+    pcSearchesNumber_label.grid(row=4, column=0, sticky=E)
     ps_entry = Entry(newWindow, width=6, justify="center")
-    ps_entry.insert(0, pcSearches)
+    ps_entry.insert(0, pcSearchesNumber)
     ps_entry.grid(row=4, column=1)
     #n. of mobile searches
-    mobileSearches_label = Label(newWindow, text="Mobile searches:")
-    mobileSearches_label.grid(row=5, column=0, sticky=E)
+    mobileSearchesNumber_label = Label(newWindow, text="Mobile searches:")
+    mobileSearchesNumber_label.grid(row=5, column=0, sticky=E)
     ms_entry = Entry(newWindow, width=6, justify="center")
-    ms_entry.insert(0, mobileSearches)
+    ms_entry.insert(0, mobileSearchesNumber)
     ms_entry.grid(row=5, column=1)
     #mode
     mode_label = Label(newWindow, text="Search mode:")
@@ -318,14 +276,11 @@ def settings():
     cancel_btn = Button(buttonsFrame, textvariable=cancel_text, height=1, width=10, command=lambda:myDestroy(newWindow), cursor="hand2")
     cancel_text.set("Cancel")
     cancel_btn.grid(row=0, column=1)
-
-def openLink(link):
-    webbrowser.open_new_tab(link)
-# FUNCTIONS END //////////////////////////////////////////////////////////////////////////////////////////////////
+# FUNCTIONS END
 
 
-# INTERFACE BEGINNING
-root = Tk()                         # beginning of the interface
+# INTERFACE BEGINNING //////////////////////////////////////////////////////////////////////////////////////////////////
+root = Tk()
 
 root.title("RandomSearch")                  # window title
 root.iconbitmap("./res/rsi.ico")            # window icon
@@ -334,55 +289,54 @@ root.resizable(0, 0)                        # the window is not resizable
 root.geometry("+"+str(positionX)+"+"+str(positionY))
 
 canvas = Canvas(root, width=windowWidth)    # needed for the layout
-#canvas.pack()                              # canvas size depends on the size of the elements in it
 canvas.grid(rowspan=5, columnspan=1)        # grid layout (5x1)
 
-#(  1  )Logo
+#(  1  ) Logo
 logo = Image.open("./res/rsl.png").resize([280,270])
 logo = ImageTk.PhotoImage(logo)             # converts the Pillow Image into a Tkinter Image
 logo_label = Label(image=logo)       
 logo_label.image = logo
 logo_label.grid(row=0, column=0, pady=(30,0))
 
-#(  2  )Progress bar
+#(  2  ) Progress bar
 style = ttk.Style()
 style.theme_use('alt')
 style.configure("cyan.Horizontal.TProgressbar", foreground="cyan", background="cyan")
-progress = ttk.Progressbar(root, orient=HORIZONTAL, length=240, mode='determinate', style="cyan.Horizontal.TProgressbar")
-progress.pack_forget()
-progress.grid(row=2, column=0, pady=(0,20))
+progressBar = ttk.Progressbar(root, orient=HORIZONTAL, length=240, mode='determinate', style="cyan.Horizontal.TProgressbar")
+progressBar.pack_forget()
+progressBar.grid(row=2, column=0, pady=(0,20))
 
-#(  3-4  )Parent widget for the buttons
+#(  3-4  ) Parent widget for the buttons
 btns_frame = Frame(root)
 btns_frame.grid(row=3, column=0, columnspan=2, rowspan=2, pady=(0,40))
 
-    #Start button
+    # Start button
 start_text = StringVar()
 start_btn = Button(btns_frame, textvariable=start_text, font=("Raleway", "11","bold"), bg=pink, fg="white", height=2, width=12, command=lambda:search(), cursor="hand2")
 start_text.set("Start")
 start_btn.grid(row=0, column=0)
 
-    #Stop button
+    # Stop button
 stop_text = StringVar()
 stop_btn = Button(btns_frame, textvariable=stop_text, font=("Raleway", "11","bold"), bg=grey, fg="white", height=2, width=12, command=lambda:stop(), state=DISABLED)
 stop_text.set("Stop")
 stop_btn.grid(row=0, column=1)
 
-    #Settings button
+    # Settings button
 settings_text = StringVar()
 settings_btn = Button(btns_frame, textvariable=settings_text, font=("Raleway", "11","bold"), bg=azure, fg="white", height=2, width=12, command=lambda:settings(), cursor="hand2")
 settings_text.set("Settings")
 settings_btn.grid(row=1, column=0)
 
-    #Quit button
+    # Quit button
 quit_text = StringVar()
 quit_btn = Button(btns_frame, textvariable=quit_text, font=("Raleway", "11","bold"), bg=blue, fg="white", height=2, width=12, command=root.quit, cursor="hand2")
 quit_text.set("Quit")
 quit_btn.grid(row=1, column=1)
 
-#(  5  )Info
+#(  5  ) Info
 info_label = Label(root, text="Info: https://github.com/dimatteoluca", fg="grey", cursor="hand2")
-info_label.bind("<Button-1>", lambda e: openLink("https://github.com/dimatteoluca"))
+info_label.bind("<Button-1>", lambda e: utils.openLink("https://github.com/dimatteoluca"))
 info_label.grid(row=5, column=0)
 
 root.mainloop()                         
