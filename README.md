@@ -11,7 +11,7 @@ pip --version
 ```
 
 If you see a version of Python less than `3.10.0` then is recommended to upgrade your installation.  
-Now you need to install with pip two libraries needed for the project to work: `keyboard` and `pillow`.
+Now you need to install through pip two libraries needed for the project to work: `keyboard` and `pillow`.
 
 ```bash
 pip install keyboard pillow
