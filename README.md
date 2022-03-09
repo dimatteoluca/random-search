@@ -38,7 +38,7 @@ auto-py-to-exe
 
 Configure it as in the image below, adding the *res* folder and the *utils.py* file in "*Additional Files*".
 
-![auto_py_to_exe](./auto-py-to-exe.png)
+![auto_py_to_exe](docs/_media/auto-py-to-exe.png)
 
 Then click the "*CONVERT .PY TO .EXE*" button.  
 If at the end of the conversion try you get the following error
@@ -79,3 +79,9 @@ pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/lucad/Documents/git
 ```
 
 You should now see on the Desktop two folders and a file: *dist*, *build* and *RandomSearch.spec*. You can delete *build* and *RandomSearch.spec* and move the *RandomSearch* folder out of *dist*.
+
+## ModuleNotFoundError
+
+![ModuleNotFoundError](docs/_media/module-not-found-error.png)
+
+If trying to run RandomSearch.exe you got the above error, you need to install the mentioned library through pip (as seen before for *keyboard* and *pillow* libraries). Delete the old converted output and start the conversion again.
