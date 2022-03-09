@@ -84,4 +84,4 @@ You should now see on the Desktop two folders and a file: *dist*, *build* and *R
 
 ![ModuleNotFoundError](docs/_media/module-not-found-error.png)
 
-If trying to run RandomSearch.exe you got the above error, you need to install the mentioned library through pip (as seen before for *keyboard* and *pillow* libraries). Delete the old converted output and start the conversion again.
+If trying to run RandomSearch.exe you got the above error, you need to install the mentioned module through pip (as seen before for *keyboard* and *pillow* libraries). Delete the old converted output and start the conversion again.
