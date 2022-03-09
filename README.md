@@ -30,7 +30,7 @@ Download and extract the sources. You can now proceed in two ways:
 pip install auto-py-to-exe
 ```
 
-Use the following command to run auto-py-to-exe:
+Use the following command to run Auto PY to EXE:
 
 ```bash
 auto-py-to-exe
