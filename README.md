@@ -17,7 +17,7 @@ Now you need to install with pip two libraries needed for the project to work: `
 pip install keyboard pillow
 ```
 
-Download and extract the sources. You can now proceed in two ways:
+Download and extract on the Desktop the sources. You can now proceed in two ways:
 
 1. with a GUI, installing [Auto PY to EXE](#1-auto-py-to-exe);
 2. via terminal, installing [PyInstaller](#2-pyinstaller).
@@ -44,9 +44,9 @@ Then click the "*CONVERT .PY TO .EXE*" button.
 If at the end of the conversion try you get the following error
 
 ```bash
-  File "C:\Users\user\AppData\Local\Programs\Python\Python310\Lib\dis.py", line 338, in _get_instructions_bytes
+  File "C:\Users\username\AppData\Local\Programs\Python\Python310\Lib\dis.py", line 338, in _get_instructions_bytes
     argval, argrepr = _get_const_info(arg, constants)
-  File "C:\Users\user\AppData\Local\Programs\Python\Python310\Lib\dis.py", line 292, in _get_const_info
+  File "C:\Users\username\AppData\Local\Programs\Python\Python310\Lib\dis.py", line 292, in _get_const_info
     argval = const_list[const_index]
 IndexError: tuple index out of range
 
@@ -54,7 +54,7 @@ Project output will not be moved to output folder
 Complete.
 ```
 
-you have to go to the folder "C:\Users\user\AppData\Local\Programs\Python\Python310\Lib" and edit the file 'dis.py'. In the 'dis.py' file you have to find this `def _unpack_opargs` and inside the `else` statement write a new line with `extended_arg = 0`, then save the file and try again.
+you have to go to the folder "C:\Users\username\AppData\Local\Programs\Python\Python310\Lib" and edit the file 'dis.py'. In the 'dis.py' file you have to find this `def _unpack_opargs` and inside the `else` statement write a new line with `extended_arg = 0`, then save the file and try again.
 
 ```py
 else:
@@ -71,11 +71,11 @@ yield (i, op, arg)
 pip install pyinstaller
 ```
 
-Run the following two commands into the Windows Command Prompt (modifying the path of the files):
+Run the following two commands into the Windows Command Prompt (modifying the "*username*"):
 
 ```bash
 cd Desktop
-pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/lucad/Documents/git/random-search/res/rsi.ico" --add-data "C:/Users/lucad/Documents/git/random-search/utils.py;." --add-data "C:/Users/lucad/Documents/git/random-search/res;res/"  "C:/Users/lucad/Documents/git/random-search/RandomSearch.py"
+pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/username/Desktop/random-search/res/rsi.ico" --add-data "C:/Users/username/Desktop/random-search/utils.py;." --add-data "C:/Users/username/Desktop/random-search/res;res/"  "C:/Users/username/Desktop/random-search/RandomSearch.py"
 ```
 
 You should now see on the Desktop two folders and a file: *dist*, *build* and *RandomSearch.spec*. You can delete *build* and *RandomSearch.spec* and move the *RandomSearch* folder out of *dist*.
