@@ -26,30 +26,31 @@ def disableButton(btn):
     btn["cursor"] = "arrow"
 
 # BROWSER MANAGEMENT
-def doSearch(url, sleepTime):
-    time.sleep(1)
+def doSearch(url, sleepTime, timeMultiplier):
+    time.sleep(1.5*timeMultiplier)
     keyboard.press_and_release('ctrl+l')
     time.sleep(sleepTime)
     keyboard.write(url)
-    time.sleep(0.5)
+    time.sleep(0.5*timeMultiplier)
     keyboard.press_and_release('enter')
 
 def openLink(link):
     webbrowser.open_new_tab(link)
 
-def closeTab():
-    time.sleep(0.5)
+def closeTab(timeMultiplier):
+    time.sleep(0.5*timeMultiplier)
     keyboard.press_and_release('ctrl+w')
 
-def closeTabs(browser, tabs):
+def closeTabs(browser, tabs, timeMultiplier):
     webbrowser.get(browser).open_new_tab("closing-tabs")
     tabs += 1
     for tab in range(tabs):
-        closeTab()
+        closeTab(timeMultiplier)
 
-def setBrowsersDevInterface():
-    time.sleep(1)
+def setBrowsersDevInterface(timeMultiplier):
+    time.sleep(1*timeMultiplier)
     keyboard.press_and_release('f12')
+    time.sleep(0.5*timeMultiplier)
 
 # OTHERS
 def getWordsList(language):

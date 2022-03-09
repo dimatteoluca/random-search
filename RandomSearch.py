@@ -23,6 +23,8 @@ purple =    "#7c6bac"
 grey =      "#e0e0e0"
 
 # INITIAL STATE
+pcSpeed =               "Fast"
+timeMultiplier =        1.0
 language =              "English"
 browser =               "Chrome"
 engine =                google
@@ -88,7 +90,7 @@ def realSearch():
         doSearches(wordsList, "starting-mobile-searches", mobileSearchesNumber, valuePerSearch)
 
     if (tabs > 0):
-        utils.closeTabs(browser, tabs)
+        utils.closeTabs(browser, tabs, timeMultiplier)
         tabs = 0
     buttonsReset1()
 
@@ -100,7 +102,7 @@ def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
     tabs += 1
 
     if (searchesType == "starting-mobile-searches"):
-        utils.setBrowsersDevInterface()
+        utils.setBrowsersDevInterface(timeMultiplier)
 
     for search in range(searchesNumber):
 
@@ -109,7 +111,7 @@ def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
             return
         progressBar['value'] += valuePerSearch
 
-    time.sleep(2)
+    time.sleep(2*timeMultiplier)
 
 def singleSearch(wordsList):
     
@@ -121,7 +123,7 @@ def singleSearch(wordsList):
     rw = utils.randomWordsURLandSleepTime(engine, wordsList)
     url = rw[0]
     sleepTime = rw[1]
-    utils.doSearch(url, sleepTime)
+    utils.doSearch(url, sleepTime, timeMultiplier)
 
 def stop():
 
@@ -147,11 +149,25 @@ def settings():
 
     sw_canvas = Canvas(settingsWindow, height=settingsWindowHeight, width=settingsWindowWidth)
     #sw_canvas.pack()
-    sw_canvas.grid(rowspan=7, columnspan=2)
+    sw_canvas.grid(rowspan=8, columnspan=2)
 
-    #(  1  ) Language
+    #(  1  ) PC speed
+    speed_label = Label(settingsWindow, text="PC speed:")
+    speed_label.grid(row=0, column=0, sticky=E)
+    sp_options = ["Fast", "Slow", "Very Slow"]
+    sp_clicked = StringVar()
+    if pcSpeed=="Fast":
+        sp_clicked.set(sp_options[0])
+    elif pcSpeed=="Slow":
+        sp_clicked.set(sp_options[1])
+    else:
+        sp_clicked.set(sp_options[2])
+    sp_drop = OptionMenu(settingsWindow, sp_clicked, *sp_options)
+    sp_drop.grid(row=0, column=1)
+
+    #(  2  ) Language
     lang_label = Label(settingsWindow, text="Search language:")
-    lang_label.grid(row=0, column=0, sticky=E)
+    lang_label.grid(row=1, column=0, sticky=E)
     la_options = ["English", "Italiano"]
     la_clicked = StringVar()
     if language=="English":
@@ -159,11 +175,11 @@ def settings():
     else:
         la_clicked.set(la_options[1])
     la_drop = OptionMenu(settingsWindow, la_clicked, *la_options)
-    la_drop.grid(row=0, column=1)
+    la_drop.grid(row=1, column=1)
 
-    #(  2  ) Browser
+    #(  3  ) Browser
     browser_label = Label(settingsWindow, text="Browser:")
-    browser_label.grid(row=1, column=0, sticky=E)
+    browser_label.grid(row=2, column=0, sticky=E)
     br_options = ["Chrome", "Edge"]
     br_clicked = StringVar()
     if browser=="Chrome":
@@ -173,11 +189,11 @@ def settings():
     else:
         br_clicked.set(br_options[2])
     br_drop = OptionMenu(settingsWindow, br_clicked, *br_options)
-    br_drop.grid(row=1, column=1)
+    br_drop.grid(row=2, column=1)
 
-    #(  3  ) Engine
+    #(  4  ) Engine
     engine_label = Label(settingsWindow, text="Engine:")
-    engine_label.grid(row=2, column=0, sticky=E)
+    engine_label.grid(row=3, column=0, sticky=E)
     en_options = ["Bing", "Ecosia", "Google"]
     en_clicked = StringVar()
     if engine==bing:
@@ -187,11 +203,11 @@ def settings():
     else:
         en_clicked.set(en_options[2])
     en_drop = OptionMenu(settingsWindow, en_clicked, *en_options)
-    en_drop.grid(row=2, column=1)
+    en_drop.grid(row=3, column=1)
 
-    #(  4  ) Mode
+    #(  5  ) Mode
     mode_label = Label(settingsWindow, text="Search mode:")
-    mode_label.grid(row=3, column=0, sticky=E)
+    mode_label.grid(row=4, column=0, sticky=E)
     mo_options = ["PC + Mobile", "PC", "Mobile"]
     mo_clicked = StringVar()
     if pc & mobile:
@@ -201,28 +217,28 @@ def settings():
     else:
         mo_clicked.set(mo_options[2])
     mo_drop = OptionMenu(settingsWindow, mo_clicked, *mo_options)
-    mo_drop.grid(row=3, column=1)
+    mo_drop.grid(row=4, column=1)
 
-    #(  5  ) N. of pc searches
+    #(  6  ) N. of pc searches
     pcSearchesNumber_label = Label(settingsWindow, text="PC searches:")
-    pcSearchesNumber_label.grid(row=4, column=0, sticky=E)
+    pcSearchesNumber_label.grid(row=5, column=0, sticky=E)
     ps_entry = Entry(settingsWindow, width=6, justify="center")
     ps_entry.insert(0, pcSearchesNumber)
-    ps_entry.grid(row=4, column=1)
+    ps_entry.grid(row=5, column=1)
 
-    #(  6  ) N. of mobile searches
+    #(  7  ) N. of mobile searches
     mobileSearchesNumber_label = Label(settingsWindow, text="Mobile searches:")
-    mobileSearchesNumber_label.grid(row=5, column=0, sticky=E)
+    mobileSearchesNumber_label.grid(row=6, column=0, sticky=E)
     ms_entry = Entry(settingsWindow, width=6, justify="center")
     ms_entry.insert(0, mobileSearchesNumber)
-    ms_entry.grid(row=5, column=1)
+    ms_entry.grid(row=6, column=1)
 
-    #(  7  ) Buttons
+    #(  8  ) Buttons
     buttonsFrame = Frame(settingsWindow)
-    buttonsFrame.grid(row=6, column=0,rowspan=1, columnspan=2)
+    buttonsFrame.grid(row=7, column=0,rowspan=1, columnspan=2)
         #ok
     ok_text = StringVar()
-    ok_btn = Button(buttonsFrame, textvariable=ok_text, height=1, width=10, command=lambda:ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry), cursor="hand2")
+    ok_btn = Button(buttonsFrame, textvariable=ok_text, height=1, width=10, command=lambda:ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry), cursor="hand2")
     ok_text.set("Ok")
     ok_btn.grid(row=0, column=0)
         #cancel
@@ -236,8 +252,10 @@ def myDestroy(settingsWindow):
     settingsWindow.destroy()
     buttonsReset3()
 
-def ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
+def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry, ms_entry):
 
+    global pcSpeed
+    global timeMultiplier
     global language
     global browser
     global engine
@@ -245,6 +263,16 @@ def ok(settingsWindow, la_clicked, br_clicked, en_clicked, mo_clicked, ps_entry,
     global mobile
     global pcSearchesNumber
     global mobileSearchesNumber
+
+    if (sp_clicked.get() == "Fast"):
+        pcSpeed = "Fast"
+        timeMultiplier = 1.0
+    elif (sp_clicked.get() == "Slow"):
+        pcSpeed = "Slow"
+        timeMultiplier = 2.0
+    else:
+        pcSpeed = "Very Slow"
+        timeMultiplier = 3.0
 
     language = la_clicked.get()
 
