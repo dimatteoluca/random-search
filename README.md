@@ -23,7 +23,6 @@ Download and extract the sources. You can now proceed in two ways:
 2. via terminal, installing [PyInstaller](#2-pyinstaller).
 
 ## 1. Auto PY to EXE
----
 
 > [Auto PY to EXE](https://pypi.org/project/auto-py-to-exe/) is a .py to .exe converter using a simple graphical interface and PyInstaller in Python.
 
@@ -65,7 +64,6 @@ yield (i, op, arg)
 ```
 
 ## 2. PyInstaller
----
 
 > [PyInstaller](https://pypi.org/project/pyinstaller/) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
 
