@@ -1,4 +1,4 @@
-import io, random, threading, webbrowser, time, keyboard
+import io, random, webbrowser, time, keyboard
 from tkinter import *
 
 

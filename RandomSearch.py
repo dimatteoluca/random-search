@@ -1,4 +1,4 @@
-import webbrowser, time, keyboard, threading, ctypes, utils
+import webbrowser, time, threading, ctypes, utils
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
@@ -8,7 +8,6 @@ from PIL import Image, ImageTk
 # BROWSERS 
 webbrowser.register("Chrome", None, webbrowser.BackgroundBrowser("C:\Program Files\Google\Chrome\Application\chrome.exe"))
 webbrowser.register("Edge", None, webbrowser.BackgroundBrowser("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"))
-#webbrowser.register("Firefox", None, webbrowser.BackgroundBrowser("C:\Program Files\Mozilla Firefox\Firefox.exe"))
 
 # ENGINES
 bing =      "https://www.bing.com/search?q="
@@ -66,9 +65,9 @@ def buttonsReset3():
 
 def search():
 
-    buttonsReset2()
-    
     global halt
+
+    buttonsReset2()    
     halt = False
 
     thread = threading.Thread(target=realSearch, daemon=True)
@@ -83,11 +82,9 @@ def realSearch():
     progressBar['value'] = 0
 
     if pc:
-
         doSearches(wordsList, "starting-pc-searches", pcSearchesNumber, valuePerSearch)
 
     if mobile:
-
         doSearches(wordsList, "starting-mobile-searches", mobileSearchesNumber, valuePerSearch)
 
     if (tabs > 0):
@@ -107,7 +104,8 @@ def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
 
     for search in range(searchesNumber):
 
-        if (singleSearch(wordsList) == -1):
+        if (singleSearch(wordsList) == "halt"):
+            progressBar['value'] = 100
             return
         progressBar['value'] += valuePerSearch
 
@@ -118,9 +116,8 @@ def singleSearch(wordsList):
     global tabs
 
     if halt:
-        progressBar['value'] = 100
         buttonsReset3()
-        return -1
+        return "halt"
     rw = utils.randomWordsURLandSleepTime(engine, wordsList)
     url = rw[0]
     sleepTime = rw[1]
