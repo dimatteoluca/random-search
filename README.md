@@ -2,26 +2,46 @@
 
 ## Build from sources
 
-To build RandomSearch yourself on Windows you need to install:
+To build RandomSearch yourself on Windows you need to install [Python](https://www.python.org/downloads/) ([pip](https://pypi.org/project/pip/) is automatically installed with it) selecting "*Add Python to PATH*" in the first page of the setup.  
+To verify that the installation was successful you can run the following commands into the Windows Command Prompt:
 
-- [Python](https://www.python.org/downloads/) (*pip* is automatically installed with it), checking "*Add Python to PATH*" in the first page of the setup;
-- a software like [auto-py-to-exe](https://pypi.org/project/auto-py-to-exe/):
+```bash
+python --version
+pip --version
+```
+
+If you see a version of Python less than `3.10.0` then is recommended to upgrade your installation.  
+Now you need to install with pip two libraries needed for the project to work: `keyboard` and `pillow`.
+
+```bash
+pip install keyboard pillow
+```
+
+Download and extract the sources. You can now proceed in two ways:
+
+1. with a GUI, installing [Auto PY to EXE](#1-auto-py-to-exe);
+2. via terminal, installing [PyInstaller](#2-pyinstaller).
+
+## 1. Auto PY to EXE
+---
+
+> [Auto PY to EXE](https://pypi.org/project/auto-py-to-exe/) is a .py to .exe converter using a simple graphical interface and PyInstaller in Python.
 
 ```bash
 pip install auto-py-to-exe
 ```
 
-Install the *Pillow* and *keyboard* libraries through the command `pip install library`.
-Download and extract the sources, then use the following command to run auto-py-to-exe:
+Use the following command to run auto-py-to-exe:
 
 ```bash
 auto-py-to-exe
 ```
 
-Configure it as in the image below. Then click the "*CONVERT .PY TO .EXE*" button.
+Configure it as in the image below, adding the *res* folder and the *utils.py* file in "*Additional Files*".
 
 ![auto_py_to_exe](./auto-py-to-exe.png)
 
+Then click the "*CONVERT .PY TO .EXE*" button.  
 If at the end of the conversion try you get the following error
 
 ```bash
@@ -44,10 +64,20 @@ else:
 yield (i, op, arg)
 ```
 
-Alternatively it is possible to install `pyinstaller` and execute the following command:
+## 2. PyInstaller
+---
 
+> [PyInstaller](https://pypi.org/project/pyinstaller/) bundles a Python application and all its dependencies into a single package. The user can run the packaged app without installing a Python interpreter or any modules.
+
+```bash
+pip install pyinstaller
 ```
+
+Run the following two commands into the Windows Command Prompt (modifying the path of the files):
+
+```bash
+cd Desktop
 pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/lucad/Documents/git/random-search/res/rsi.ico" --add-data "C:/Users/lucad/Documents/git/random-search/utils.py;." --add-data "C:/Users/lucad/Documents/git/random-search/res;res/"  "C:/Users/lucad/Documents/git/random-search/RandomSearch.py"
 ```
 
-Only the 'dist' directory is important.
+You should now see on the Desktop two folders and a file: *dist*, *build* and *RandomSearch.spec*. You can delete *build* and *RandomSearch.spec* and move the *RandomSearch* folder out of *dist*.
