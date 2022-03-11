@@ -8,11 +8,15 @@ from PIL import Image, ImageTk
 # BROWSERS 
 webbrowser.register("Chrome", None, webbrowser.BackgroundBrowser("C:\Program Files\Google\Chrome\Application\chrome.exe"))
 webbrowser.register("Edge", None, webbrowser.BackgroundBrowser("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"))
+webbrowser.register("Firefox", None, webbrowser.BackgroundBrowser("C:\Program Files\Mozilla Firefox\Firefox.exe"))
+webbrowser.register("Opera", None, webbrowser.BackgroundBrowser("C:\Program Files\Opera\launcher.exe"))
 
 # ENGINES
 bing =      "https://www.bing.com/search?q="
-google =    "https://www.google.com/search?q="
+duckgo =    "https://duckduckgo.com/?q="
 ecosia =    "https://www.ecosia.org/search?q="
+google =    "https://www.google.com/search?q="
+yahoo =     "https://search.yahoo.com/search?q="
 
 # COLORS
 cyan =      "#0ee0ed"
@@ -24,7 +28,7 @@ grey =      "#e0e0e0"
 
 # INITIAL STATE
 pcSpeed =               "Fast"
-timeMultiplier =        1.0
+timeMultiplier =        1.5
 language =              "English"
 browser =               "Chrome"
 engine =                google
@@ -35,7 +39,7 @@ mobileSearchesNumber =  5
 tabs =                  0
 halt =                  False
 
-# WINDOWS POSITION & SIZE
+# POSITIONS & SIZES
 user32 = ctypes.windll.user32
 screenWidth = user32.GetSystemMetrics(0)
 screenHeight = user32.GetSystemMetrics(1)
@@ -45,26 +49,10 @@ windowWidth = 380
 #windowHeight = auto
 settingsWindowWidth = 280
 settingsWindowHeight = 350
+optionMenusWidth = 12
 
 
 # FUNCTIONS BEGINNING //////////////////////////////////////////////////////////////////////////////////////////////////
-def buttonsReset1():
-
-    utils.enableButton(start_btn, pink)
-    utils.disableButton(stop_btn)
-    utils.enableButton(settings_btn, azure)
-
-def buttonsReset2():
-
-    utils.disableButton(start_btn)
-    utils.enableButton(stop_btn, purple)
-    utils.disableButton(settings_btn)
-
-def buttonsReset3():
-
-    utils.enableButton(start_btn, pink)
-    utils.enableButton(settings_btn, azure)
-
 def search():
 
     global halt
@@ -83,42 +71,41 @@ def realSearch():
     valuePerSearch = utils.getProgressBarValuePerSearch(pc, mobile, pcSearchesNumber, mobileSearchesNumber)
     progressBar['value'] = 0
 
+    webbrowser.get(browser).open_new_tab("https://www.example.org/")
+    tabs += 1
+
     if pc:
-        doSearches(wordsList, "starting-pc-searches", pcSearchesNumber, valuePerSearch)
-
+        ret = doSearches(wordsList, "pc", pcSearchesNumber, valuePerSearch)
     if mobile:
-        doSearches(wordsList, "starting-mobile-searches", mobileSearchesNumber, valuePerSearch)
+        ret = doSearches(wordsList, "mobile", mobileSearchesNumber, valuePerSearch)
 
-    if (tabs > 0):
+    if (ret=="halt"):
         utils.closeTabs(browser, tabs, timeMultiplier)
-        tabs = 0
+    if (ret=="go"):
+        for tab in range(tabs):
+            utils.closeTab(timeMultiplier)
+
+    tabs = 0
     buttonsReset1()
 
 def doSearches(wordsList, searchesType, searchesNumber, valuePerSearch):
     
-    global tabs
-
-    webbrowser.get(browser).open_new_tab(searchesType)
-    tabs += 1
-
-    if (searchesType == "starting-mobile-searches"):
-        utils.setBrowsersDevInterface(timeMultiplier)
+    if (searchesType == "mobile"):
+        utils.setBrowsersDevInterface(browser, timeMultiplier)
 
     for search in range(searchesNumber):
 
         if (singleSearch(wordsList) == "halt"):
             progressBar['value'] = 100
-            return
+            return "halt"
         progressBar['value'] += valuePerSearch
 
     time.sleep(2*timeMultiplier)
+    return "go"
 
 def singleSearch(wordsList):
     
-    global tabs
-
     if halt:
-        buttonsReset3()
         return "halt"
     rw = utils.randomWordsURLandSleepTime(engine, wordsList)
     url = rw[0]
@@ -154,15 +141,18 @@ def settings():
     #(  1  ) PC speed
     speed_label = Label(settingsWindow, text="PC speed:")
     speed_label.grid(row=0, column=0, sticky=E)
-    sp_options = ["Fast", "Slow", "Very Slow"]
+    sp_options = ["Very Fast", "Fast", "Slow", "Very Slow"]
     sp_clicked = StringVar()
-    if pcSpeed=="Fast":
+    if pcSpeed=="Very Fast":
         sp_clicked.set(sp_options[0])
-    elif pcSpeed=="Slow":
+    elif pcSpeed=="Fast":
         sp_clicked.set(sp_options[1])
-    else:
+    elif pcSpeed=="Slow":
         sp_clicked.set(sp_options[2])
+    elif pcSpeed=="Very Slow":
+        sp_clicked.set(sp_options[3])
     sp_drop = OptionMenu(settingsWindow, sp_clicked, *sp_options)
+    sp_drop.config(width=optionMenusWidth)
     sp_drop.grid(row=0, column=1)
 
     #(  2  ) Language
@@ -172,37 +162,46 @@ def settings():
     la_clicked = StringVar()
     if language=="English":
         la_clicked.set(la_options[0])
-    else:
+    elif language=="Italiano":
         la_clicked.set(la_options[1])
     la_drop = OptionMenu(settingsWindow, la_clicked, *la_options)
+    la_drop.config(width=optionMenusWidth)
     la_drop.grid(row=1, column=1)
 
     #(  3  ) Browser
     browser_label = Label(settingsWindow, text="Browser:")
     browser_label.grid(row=2, column=0, sticky=E)
-    br_options = ["Chrome", "Edge"]
+    br_options = ["Chrome", "Edge", "Firefox", "Opera"]
     br_clicked = StringVar()
     if browser=="Chrome":
         br_clicked.set(br_options[0])
     elif browser=="Edge":
         br_clicked.set(br_options[1])
-    else:
+    elif browser=="Firefox":
         br_clicked.set(br_options[2])
+    elif browser=="Opera":
+        br_clicked.set(br_options[3])
     br_drop = OptionMenu(settingsWindow, br_clicked, *br_options)
+    br_drop.config(width=optionMenusWidth)
     br_drop.grid(row=2, column=1)
 
     #(  4  ) Engine
     engine_label = Label(settingsWindow, text="Engine:")
     engine_label.grid(row=3, column=0, sticky=E)
-    en_options = ["Bing", "Ecosia", "Google"]
+    en_options = ["Bing", "DuckDuckGo", "Ecosia", "Google", "Yahoo"]
     en_clicked = StringVar()
     if engine==bing:
         en_clicked.set(en_options[0])
-    elif engine==ecosia:
+    elif engine==duckgo:
         en_clicked.set(en_options[1])
-    else:
+    elif engine==ecosia:
         en_clicked.set(en_options[2])
+    elif engine==google:
+        en_clicked.set(en_options[3])
+    elif engine==yahoo:
+        en_clicked.set(en_options[4])
     en_drop = OptionMenu(settingsWindow, en_clicked, *en_options)
+    en_drop.config(width=optionMenusWidth)
     en_drop.grid(row=3, column=1)
 
     #(  5  ) Mode
@@ -214,9 +213,10 @@ def settings():
         mo_clicked.set(mo_options[0])
     elif not mobile:
         mo_clicked.set(mo_options[1])
-    else:
+    elif not pc:
         mo_clicked.set(mo_options[2])
     mo_drop = OptionMenu(settingsWindow, mo_clicked, *mo_options)
+    mo_drop.config(width=optionMenusWidth)
     mo_drop.grid(row=4, column=1)
 
     #(  6  ) N. of pc searches
@@ -264,13 +264,16 @@ def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicke
     global pcSearchesNumber
     global mobileSearchesNumber
 
-    if (sp_clicked.get() == "Fast"):
-        pcSpeed = "Fast"
+    if (sp_clicked.get() == "Very Fast"):
+        pcSpeed = "Very Fast"
         timeMultiplier = 1.0
+    elif (sp_clicked.get() == "Fast"):
+        pcSpeed = "Fast"
+        timeMultiplier = 1.5
     elif (sp_clicked.get() == "Slow"):
         pcSpeed = "Slow"
         timeMultiplier = 2.0
-    else:
+    elif (sp_clicked.get() == "Very Slow"):
         pcSpeed = "Very Slow"
         timeMultiplier = 3.0
 
@@ -280,10 +283,14 @@ def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicke
 
     if (en_clicked.get() == "Bing"):
         engine = bing
+    elif (en_clicked.get() == "DuckDuckGo"):
+        engine = duckgo
     elif (en_clicked.get() == "Ecosia"):
         engine = ecosia
-    else:
+    elif (en_clicked.get() == "Google"):
         engine = google
+    elif (en_clicked.get() == "Yahoo"):
+        engine = yahoo
 
     if (mo_clicked.get() == "PC + Mobile"):
         pc = True
@@ -291,7 +298,7 @@ def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicke
     elif (mo_clicked.get() == "PC"):
         pc = True
         mobile = False
-    else:
+    elif (mo_clicked.get() == "Mobile"):
         pc = False
         mobile = True
         
@@ -309,6 +316,23 @@ def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicke
 
     settingsWindow.destroy()
     buttonsReset3()
+
+def buttonsReset1():
+
+    utils.enableButton(start_btn, pink)
+    utils.disableButton(stop_btn)
+    utils.enableButton(settings_btn, azure)
+
+def buttonsReset2():
+
+    utils.disableButton(start_btn)
+    utils.enableButton(stop_btn, purple)
+    utils.disableButton(settings_btn)
+
+def buttonsReset3():
+
+    utils.enableButton(start_btn, pink)
+    utils.enableButton(settings_btn, azure)
 # FUNCTIONS END
 
 

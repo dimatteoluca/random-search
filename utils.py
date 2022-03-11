@@ -42,14 +42,21 @@ def closeTab(timeMultiplier):
     keyboard.press_and_release('ctrl+w')
 
 def closeTabs(browser, tabs, timeMultiplier):
-    webbrowser.get(browser).open_new_tab("closing-tabs")
+    webbrowser.get(browser).open_new_tab("https://www.example.org/")
     tabs += 1
     for tab in range(tabs):
         closeTab(timeMultiplier)
 
-def setBrowsersDevInterface(timeMultiplier):
+def setBrowsersDevInterface(browser, timeMultiplier):
     time.sleep(1*timeMultiplier)
-    keyboard.press_and_release('f12')
+    if browser=="Opera":
+        keyboard.press_and_release('ctrl+shift+c')
+    else:
+        keyboard.press_and_release('f12')
+
+    if browser=="Firefox":
+        time.sleep(0.5*timeMultiplier)
+        keyboard.press_and_release('ctrl+shift+m')
     time.sleep(0.5*timeMultiplier)
 
 # OTHERS
