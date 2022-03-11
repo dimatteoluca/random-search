@@ -25,9 +25,10 @@ To be able to use it on Opera, the browser must be installed in "C:\Users\userna
 </p>
 
 In the settings you can change:
-- **PC speed** - (Fast, Slow, Very Slow), to increase the time between the various operations;
+- **PC speed** - (Very Fast, Fast, Slow, Very Slow), to increase/decrease the time between the various operations;
 - **Search language** - (English, Italiano), to change the language of the searches;
-- **Browser** - (Chrome, Edge, Firefox, Opera), to select the browser on which to search;
+- **Browser** - (Chrome, Edge, Firefox, Opera);
+- **Engine** - (Bing, DuckDuckGo, Ecosia, Google, Yahoo);
 - **Search mode** - (PC + Mobile, PC, Mobile), to select the type of the searches;
 - **PC searches** and **Mobile searches**, to change the number of the searches.
 
