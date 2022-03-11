@@ -1,4 +1,4 @@
-import webbrowser, time, threading, ctypes, utils
+import webbrowser, time, threading, ctypes, utils, json
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
@@ -27,15 +27,24 @@ purple =    "#7c6bac"
 grey =      "#e0e0e0"
 
 # INITIAL STATE
-pcSpeed =               "Fast"
-timeMultiplier =        1.5
-language =              "English"
-browser =               "Chrome"
-engine =                google
-pc =                    True
-mobile =                True
-pcSearchesNumber =      5
-mobileSearchesNumber =  5
+with open('config.json','r') as f:
+    config = json.load(f)
+
+pcSpeed =               str(config["pcSpeed"])
+timeMultiplier =        float(config["timeMultiplier"])
+language =              str(config["language"])
+browser =               str(config["browser"])
+engine =                str(config["engine"])
+if str(config["pc"])=="True":
+    pc = True
+elif str(config["pc"])=="False":
+    pc = False
+if str(config["mobile"])=="True":
+    mobile = True
+elif str(config["mobile"])=="False":
+    mobile = False
+pcSearchesNumber =      int(config["pcSearchesNumber"])
+mobileSearchesNumber =  int(config["mobileSearchesNumber"])
 tabs =                  0
 halt =                  False
 
@@ -137,6 +146,8 @@ def settings():
     sw_canvas = Canvas(settingsWindow, height=settingsWindowHeight, width=settingsWindowWidth)
     #sw_canvas.pack()
     sw_canvas.grid(rowspan=8, columnspan=2)
+
+    getConfig()
 
     #(  1  ) PC speed
     speed_label = Label(settingsWindow, text="PC speed:")
@@ -314,8 +325,48 @@ def ok(settingsWindow, sp_clicked, la_clicked, br_clicked, en_clicked, mo_clicke
     if ((ms_entry != "") and (n > 0)):
         mobileSearchesNumber = n
 
+    
+    setConfig()
     settingsWindow.destroy()
     buttonsReset3()
+
+def getConfig():
+
+    global pcSpeed
+    global timeMultiplier
+    global language
+    global browser
+    global engine
+    global pc
+    global mobile
+    global pcSearchesNumber
+    global mobileSearchesNumber
+
+    with open('config.json','r') as f:
+        config = json.load(f)
+
+    pcSpeed =               str(config["pcSpeed"])
+    timeMultiplier =        float(config["timeMultiplier"])
+    language =              str(config["language"])
+    browser =               str(config["browser"])
+    engine =                str(config["engine"])
+    if str(config["pc"])=="True":
+        pc = True
+    elif str(config["pc"])=="False":
+        pc = False
+    if str(config["mobile"])=="True":
+        pc = True
+    elif str(config["mobile"])=="False":
+        pc = False
+    pcSearchesNumber =      int(config["pcSearchesNumber"])
+    mobileSearchesNumber =  int(config["mobileSearchesNumber"])
+
+def setConfig():
+
+    config = {"pcSpeed":str(pcSpeed), "timeMultiplier":str(timeMultiplier), "language":str(language), "browser":str(browser), "engine":str(engine), "pc":str(pc), "mobile":str(mobile),"pcSearchesNumber":str(pcSearchesNumber), "mobileSearchesNumber":str(mobileSearchesNumber)}
+
+    with open('config.json','w') as f:
+        json.dump(config, f)
 
 def buttonsReset1():
 
