@@ -81,7 +81,7 @@ Run the following two commands into the Windows Command Prompt (modifying the "*
 
 ```bash
 cd Desktop
-pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/username/Desktop/random-search-main/res/rm.ico" --add-data "C:/Users/username/Desktop/random-search-main/utils.py;." --add-data "C:/Users/username/Desktop/random-search-main/res;res/"  "C:/Users/username/Desktop/random-search-main/RandomSearch.py"
+pyinstaller --noconfirm --onedir --windowed --icon "C:/Users/username/Desktop/random-search-main/res/rsi.ico" --add-data "C:/Users/username/Desktop/random-search-main/utils.py;." --add-data "C:/Users/username/Desktop/random-search-main/config.json;." --add-data "C:/Users/username/Desktop/random-search-main/res;res/"  "C:/Users/username/Desktop/random-search-main/RandomSearch.py"
 ```
 
 You should now see on the Desktop two folders and a file: *dist*, *build* and *RandomSearch.spec*. You can delete *build* and *RandomSearch.spec* and move the *RandomSearch* folder out of *dist*.
@@ -100,7 +100,7 @@ Use the following command to run Auto PY to EXE:
 auto-py-to-exe
 ```
 
-Configure it as in the image below, adding the *res* folder and the *utils.py* file in "*Additional Files*".
+Configure it as in the image below, adding the *res* folder and the *utils.py* and *config.json* files in "*Additional Files*".
 
 <p align="center">
   <img src="docs/_media/auto-py-to-exe.png" style="width: 600px; margin: 25px;"/>
