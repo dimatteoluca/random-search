@@ -5,6 +5,9 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 
+# VERSION NUMBER
+versionNumber = "1.2.0"
+
 # BROWSERS 
 webbrowser.register("Chrome", None, webbrowser.BackgroundBrowser("C:\Program Files\Google\Chrome\Application\chrome.exe"))
 webbrowser.register("Edge", None, webbrowser.BackgroundBrowser("C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"))
@@ -439,7 +442,7 @@ quit_text.set("Quit")
 quit_btn.grid(row=1, column=1)
 
 #(  5  ) Info
-info_label = Label(root, text="RandomSearch v1.2.0\nInfo: https://github.com/dimatteoluca/random-search", fg="grey", cursor="hand2")
+info_label = Label(root, text="RandomSearch v"+versionNumber+"\nInfo: https://github.com/dimatteoluca/random-search", fg="grey", cursor="hand2")
 info_label.bind("<Button-1>", lambda e: utils.openLink("https://github.com/dimatteoluca/random-search"))
 info_label.grid(row=5, column=0)
 
