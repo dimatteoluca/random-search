@@ -439,8 +439,8 @@ quit_text.set("Quit")
 quit_btn.grid(row=1, column=1)
 
 #(  5  ) Info
-info_label = Label(root, text="Info: https://github.com/dimatteoluca", fg="grey", cursor="hand2")
-info_label.bind("<Button-1>", lambda e: utils.openLink("https://github.com/dimatteoluca"))
+info_label = Label(root, text="RandomSearch v1.2.0\nInfo: https://github.com/dimatteoluca/random-search", fg="grey", cursor="hand2")
+info_label.bind("<Button-1>", lambda e: utils.openLink("https://github.com/dimatteoluca/random-search"))
 info_label.grid(row=5, column=0)
 
 root.mainloop()                         
